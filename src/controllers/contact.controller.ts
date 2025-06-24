@@ -1,4 +1,4 @@
-import { Contact, ContactRequestBody } from "interfaces/Contact";
+import { Contact, ContactRequestBody } from "../interfaces/Contact";
 import { Request, Response } from "express";
 import { db } from "../database/drizzle";
 import { ContactTable } from "../database/schema";
@@ -19,9 +19,9 @@ export async function createContact(request: Request, response: Response) {
       .from(ContactTable)
       .where(
         or(
-          eq(ContactTable.phoneNumber, phoneNumber),
-          eq(ContactTable.email, email)
-        )
+          eq(ContactTable.phoneNumber, phoneNumber!),
+          eq(ContactTable.email, email!),
+        ),
       );
     if (contacts.length === 0) {
       if (!phoneNumber || !email) {
@@ -34,7 +34,7 @@ export async function createContact(request: Request, response: Response) {
         phoneNumber,
         email,
         linkPrecedence: "primary",
-        linkedId: null,
+        linkedId: undefined,
       };
 
       const insertedContact = await db
@@ -55,9 +55,7 @@ export async function createContact(request: Request, response: Response) {
       return response.status(200).json({
         contact: {
           primaryContactId: contacts.filter(
-            (cont) =>
-              cont.linkPrecedence === "primary" &&
-              (cont.phoneNumber === phoneNumber || cont.email === email)
+            (cont) => cont.linkPrecedence === "primary" && cont.email === email,
           )[0].id,
           emails: [
             ...contacts
@@ -68,6 +66,15 @@ export async function createContact(request: Request, response: Response) {
             ...contacts
               .filter((cont) => cont.email === email)
               .map((cont) => cont.phoneNumber),
+          ],
+          secondaryContactIds: [
+            ...contacts
+              .filter(
+                (contact) =>
+                  contact.email === email &&
+                  contact.linkPrecedence === "secondary",
+              )
+              .map((contact) => contact.id),
           ],
         },
       });
@@ -79,8 +86,8 @@ export async function createContact(request: Request, response: Response) {
           primaryContactId: contacts.filter(
             (cont) =>
               cont.linkPrecedence === "primary" &&
-              (cont.phoneNumber === phoneNumber || cont.phoneNumber === email)
-          )[0].id,
+              cont.phoneNumber === phoneNumber,
+          )[0]?.id,
           emails: [
             ...contacts
               .filter((cont) => cont.phoneNumber === phoneNumber)
@@ -91,10 +98,18 @@ export async function createContact(request: Request, response: Response) {
               .filter((cont) => cont.phoneNumber === phoneNumber)
               .map((cont) => cont.phoneNumber),
           ],
+          secondaryContactIds: [
+            ...contacts
+              .filter(
+                (contact) =>
+                  contact.phoneNumber === phoneNumber &&
+                  contact.linkPrecedence === "secondary",
+              )
+              .map((contact) => contact.id),
+          ],
         },
       });
     }
-    console.log(contacts);
     const newContact: Contact = {
       phoneNumber,
       email,
@@ -102,8 +117,8 @@ export async function createContact(request: Request, response: Response) {
       linkedId: contacts.filter(
         (contact) =>
           contact.email === email ||
-          contact.phoneNumber === phoneNumber &&
-          contact.linkPrecedence === "primary"
+          (contact.phoneNumber === phoneNumber &&
+            contact.linkPrecedence === "primary"),
       )[0].id,
     };
 
@@ -114,7 +129,7 @@ export async function createContact(request: Request, response: Response) {
     return response.status(200).json({
       contact: {
         primaryContactId: contacts.filter(
-          (contact) => contact.linkPrecedence === "primary"
+          (contact) => contact.linkPrecedence === "primary",
         )[0].id,
         emails: [
           ...contacts
@@ -135,9 +150,10 @@ export async function createContact(request: Request, response: Response) {
       },
     });
   } catch (error) {
-    console.log("Error creating contact", error.message);
-    return response
-      .status(500)
-      .json({ success: false, message: error.message });
+    console.log("Error creating contact", error);
+    return response.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Internal Server Error",
+    });
   }
 }
