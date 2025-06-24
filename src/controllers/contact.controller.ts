@@ -1,4 +1,4 @@
-import { Contact, ContactRequestBody } from "interfaces/Contact";
+import { Contact, ContactRequestBody } from "../interfaces/Contact";
 import { Request, Response } from "express";
 import { db } from "../database/drizzle";
 import { ContactTable } from "../database/schema";
