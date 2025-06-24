@@ -94,7 +94,6 @@ export async function createContact(request: Request, response: Response) {
         },
       });
     }
-    console.log(contacts);
     const newContact: Contact = {
       phoneNumber,
       email,
