@@ -6,7 +6,9 @@
     "outDir": "dist",
     "sourceMap": true,
     "noImplicitAny": true,
-    "noEmitOnError": false
+    "noEmitOnError": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts"]
 }
