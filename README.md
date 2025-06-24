@@ -56,4 +56,4 @@ The webservice is started by following below instructions.
     }
   ```
 
-  ### Postman Documentation [Postman]() 
+  ### Click [here](https://www.postman.com/platform-development-team-2672/workspace/team-workspace/collection/32061324-98dbc519-da76-47f5-9a16-c05a9adfbb33?action=share&creator=32061324) to open postman documentation.
