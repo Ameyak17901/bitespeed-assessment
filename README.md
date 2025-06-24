@@ -8,6 +8,12 @@
 - Fetch contact for given phone number or email.
 - Create a new primary contact for given email and phone number.
 
+### Technical Stack:
+- Node.js with Express.js framework
+- TypeScript
+- NeonDB (PostgreSQL)
+- Drizzle ORM
+
 ### Instructions:
 The webservice is started by following below instructions.
 - Clone the repositry using below command:
