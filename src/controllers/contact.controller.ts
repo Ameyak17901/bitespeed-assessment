@@ -55,9 +55,7 @@ export async function createContact(request: Request, response: Response) {
       return response.status(200).json({
         contact: {
           primaryContactId: contacts.filter(
-            (cont) =>
-              cont.linkPrecedence === "primary" &&
-              (cont.phoneNumber === phoneNumber || cont.email === email)
+            (cont) => cont.linkPrecedence === "primary" && cont.email === email
           )[0].id,
           emails: [
             ...contacts
@@ -68,6 +66,15 @@ export async function createContact(request: Request, response: Response) {
             ...contacts
               .filter((cont) => cont.email === email)
               .map((cont) => cont.phoneNumber),
+          ],
+          secondaryContactIds: [
+            ...contacts
+              .filter(
+                (contact) =>
+                  contact.email === email &&
+                  contact.linkPrecedence === "secondary"
+              )
+              .map((contact) => contact.id),
           ],
         },
       });
@@ -79,8 +86,8 @@ export async function createContact(request: Request, response: Response) {
           primaryContactId: contacts.filter(
             (cont) =>
               cont.linkPrecedence === "primary" &&
-              (cont.phoneNumber === phoneNumber || cont.phoneNumber === email)
-          )[0].id,
+              cont.phoneNumber === phoneNumber
+          )[0]?.id,
           emails: [
             ...contacts
               .filter((cont) => cont.phoneNumber === phoneNumber)
@@ -90,6 +97,15 @@ export async function createContact(request: Request, response: Response) {
             ...contacts
               .filter((cont) => cont.phoneNumber === phoneNumber)
               .map((cont) => cont.phoneNumber),
+          ],
+          secondaryContactIds: [
+            ...contacts
+              .filter(
+                (contact) =>
+                  contact.phoneNumber === phoneNumber &&
+                  contact.linkPrecedence === "secondary"
+              )
+              .map((contact) => contact.id),
           ],
         },
       });
@@ -101,8 +117,8 @@ export async function createContact(request: Request, response: Response) {
       linkedId: contacts.filter(
         (contact) =>
           contact.email === email ||
-          contact.phoneNumber === phoneNumber &&
-          contact.linkPrecedence === "primary"
+          (contact.phoneNumber === phoneNumber &&
+            contact.linkPrecedence === "primary")
       )[0].id,
     };
 
@@ -134,7 +150,7 @@ export async function createContact(request: Request, response: Response) {
       },
     });
   } catch (error) {
-    console.log("Error creating contact", error.message);
+    console.log("Error creating contact", error);
     return response
       .status(500)
       .json({ success: false, message: error.message });
